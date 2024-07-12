@@ -1,0 +1,996 @@
+{
+	"info": {
+		"_postman_id": "86c04d1c-5884-4fd1-89f9-a26a3a4cdfe4",
+		"name": "MongoDB Data API",
+		"description": "This collection is an introduction to the [MongoDB Data API](https://mdb.link/postman-data-api). The Data API provides you with a REST-like access to your data in [MongoDB Atlas](https://mdb.link/postman-atlas), the database-as-a-service offering by MongoDB.\n\nYou can find the full documentation on the MongoDB Data API on the [documentation website](https://mdb.link/postman-data-api-docs).\n\n## Getting Started\n\nTo test out the MongoDB Data API collection, start by [creating a free MongoDB Atlas cluster](https://mdb.link/postman-free-cluster).\n\nOnce you have a cluster, you can [fork this collection](https://www.postman.com/mongodb-devrel/workspace/mongodb-public/collection/17898583-25682080-e247-4d25-8e5c-1798461c7db4/fork) into your own workspace so you'll be able to use it with your own variables.\n\nOnce you have a cluster up and running, [enable the Data API](https://mdb.link/postman-enable-api).\n\nFrom the Atlas UI, copy the URL endpoint provided for the Data API, and paste the value in your URL_ENDPOINT collection variable.\n\nStill in the Atlas UI, create a new API key, copy the value and paste it in the API_KEY collection variable.\n\nWith the [EJSON format](https://mdb.link/postman-ejson), you can benefit from MongoDB’s Extended JSON format, which preserves many data types that are normally not supported by JSON (such as ObjectID, Date, and more).\n\nFor writes, the {{CONTENT_TYPE}} variable is required and can be set to either `json` or `ejson`. This variable is used by Postman in the _Content-Type_ header.\n\nFor reads, the Data API returns JSON by default, but can be changed to EJSON by setting the _Accept_ header. You can set the {{CONTENT_TYPE}} variable to `json` or `ejson` to change the default behavior. Changing this variable will change the _Accept_ header when Postman does a request to the Data API. The default content type returned by Atlas can also be changed in the Atlas Admin UI.\n\nFill in the other variables with the appropriate values for your cluster, database, and collection names.\n\nYou can now explore the various endpoints and see how to perform CRUD operations on your collection using the MongoDB Data API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35279821"
+	},
+	"item": [
+		{
+			"name": "Insert Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 201",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the insertedId field",
+							"pm.test(\"Response contains insertedId\", function () {",
+							"    pm.expect(response).to.have.property(\"insertedId\");",
+							"});",
+							"",
+							"// Check if insertedId is a valid string (non-empty)",
+							"pm.test(\"insertedId is a valid string\", function () {",
+							"    pm.expect(response.insertedId).to.be.a(\"string\").and.not.be.empty;",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"document\": {\n        \"name\": \"John1 Sample123456789\",\n        \"age\": 23,\n        \"email\": \"john1_sample123456789@gameofthron.es\"\n      }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/insertOne",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"insertOne"
+					]
+				},
+				"description": "Using the `/insertOne` endpoint, you can add a document to a collection. Use the `document` property in the request body to specify the document that should be created."
+			},
+			"response": []
+		},
+		{
+			"name": "Find Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the document field",
+							"pm.test(\"Response contains document\", function () {",
+							"    pm.expect(response).to.have.property(\"document\");",
+							"});",
+							"",
+							"// Check if document contains _id, name, age, and email fields",
+							"pm.test(\"Document contains _id, name, age, and email\", function () {",
+							"    pm.expect(response.document).to.have.property(\"_id\");",
+							"    pm.expect(response.document).to.have.property(\"name\");",
+							"    pm.expect(response.document).to.have.property(\"age\");",
+							"    pm.expect(response.document).to.have.property(\"email\");",
+							"});",
+							"",
+							"// Check if _id is a valid string (non-empty)",
+							"pm.test(\"_id is a valid string\", function () {",
+							"    pm.expect(response.document._id).to.be.a(\"string\").and.not.be.empty;",
+							"});",
+							"",
+							"// Check if name is \"John Sample\"",
+							"pm.test(\"Name is John Sample123\", function () {",
+							"    pm.expect(response.document.name).to.equal(\"John Sample\");",
+							"});",
+							"",
+							"// Check if age is 42",
+							"pm.test(\"Age is 42\", function () {",
+							"    pm.expect(response.document.age).to.equal(42);",
+							"});",
+							"",
+							"// Check if email is \"john_sample@gameofthron.es\"",
+							"pm.test(\"Email is john_sample123@gameofthron.es\", function () {",
+							"    pm.expect(response.document.email).to.equal(\"john_sample@gameofthron.es\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/{{CONTENT_TYPE}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": { \"name\": \"John Sample\" }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/findOne",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"findOne"
+					]
+				},
+				"description": "Using the `/findOne` endpoint will let you retrieve a single document from a collection. Use the `filter` property in the request body to specify the search criteria. If more than one document matches the criteria, only the first match will be returned."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the matchedCount field",
+							"pm.test(\"Response contains matchedCount\", function () {",
+							"    pm.expect(response).to.have.property(\"matchedCount\");",
+							"});",
+							"",
+							"// Check if the response contains the modifiedCount field",
+							"pm.test(\"Response contains modifiedCount\", function () {",
+							"    pm.expect(response).to.have.property(\"modifiedCount\");",
+							"});",
+							"",
+							"// Check if matchedCount is 1",
+							"pm.test(\"matchedCount is 1\", function () {",
+							"    pm.expect(response.matchedCount).to.equal(1);",
+							"});",
+							"",
+							"// Check if modifiedCount is 1",
+							"pm.test(\"modifiedCount is 1\", function () {",
+							"    pm.expect(response.modifiedCount).to.equal(1);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": { \"name\": \"John Sample\" },\n      \"update\": { \"$set\": { \"age\": 24 } }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/updateOne",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"updateOne"
+					]
+				},
+				"description": "You can use the `/updateOne` endpoint to update a single record. Use the `filter` property in the request body to specify the search criteria. If more than one document matches the criteria, only the first match will be returned. Then use the `update` field to specify what should be updated. You should use one of the [update operators](https://docs.mongodb.com/manual/reference/operator/update-field/) to update your documents."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Document",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the deletedCount field",
+							"pm.test(\"Response contains deletedCount\", function () {",
+							"    pm.expect(response).to.have.property(\"deletedCount\");",
+							"});",
+							"",
+							"// Check if deletedCount is 1",
+							"pm.test(\"deletedCount is 1\", function () {",
+							"    pm.expect(response.deletedCount).to.equal(1);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": { \"name\": \"John Sample123456789\" }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/deleteOne",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"deleteOne"
+					]
+				},
+				"description": "To delete a single document, use the `/deleteOne` endpoint. Use the `filter` property in the request body to specify the search criteria. If more than one document matches the criteria, only the first match will be deleted."
+			},
+			"response": []
+		},
+		{
+			"name": "Insert Multiple Documents",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 201",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the insertedIds field",
+							"pm.test(\"Response contains insertedIds\", function () {",
+							"    pm.expect(response).to.have.property(\"insertedIds\");",
+							"});",
+							"",
+							"// Check if insertedIds is an array",
+							"pm.test(\"insertedIds is an array\", function () {",
+							"    pm.expect(response.insertedIds).to.be.an('array');",
+							"});",
+							"",
+							"// Check if the array length of insertedIds is 3",
+							"pm.test(\"insertedIds array length is 3\", function () {",
+							"    pm.expect(response.insertedIds.length).to.equal(3);",
+							"});",
+							"",
+							"// Check if each insertedId is a non-empty string",
+							"response.insertedIds.forEach(function(id, index) {",
+							"    pm.test(`insertedId at index ${index} is a non-empty string`, function () {",
+							"        pm.expect(id).to.be.a('string').and.to.not.be.empty;",
+							"    });",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"documents\": [{\n        \"name\": \"John Sample123\",\n        \"age\": 43,\n        \"email\": \"john_sample123@gameofthron.es\"\n      },{\n        \"name\": \"Mister Postman123\",\n        \"age\": 31,\n        \"email\": \"mister_postman123@gameofthron.es\"\n      },{\n        \"name\": \"Miss MongoDB123\",\n        \"age\": 65,\n        \"email\": \"miss_mongoDB123@gameofthron.es\"\n      }]\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/insertMany",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"insertMany"
+					]
+				},
+				"description": "You can add more than one document at a time by using the `/insertMany` endpoint. In that case, you must use the `documents` property in the body of the request to specify the array of documents you want to insert into the collection."
+			},
+			"response": []
+		},
+		{
+			"name": "Find Multiple Documents",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the documents field",
+							"pm.test(\"Response contains documents\", function () {",
+							"    pm.expect(response).to.have.property(\"documents\");",
+							"});",
+							"",
+							"// Check if documents is an array",
+							"pm.test(\"documents is an array\", function () {",
+							"    pm.expect(response.documents).to.be.an('array');",
+							"});",
+							"",
+							"// Check if the array length of documents is 8",
+							"pm.test(\"documents array length is 8\", function () {",
+							"    pm.expect(response.documents.length).to.equal(8);",
+							"});",
+							"",
+							"// Check if each document has the required fields",
+							"response.documents.forEach(function(doc, index) {",
+							"    pm.test(`Document at index ${index} has _id`, function () {",
+							"        pm.expect(doc).to.have.property('_id').that.is.a('string').and.to.not.be.empty;",
+							"    });",
+							"    pm.test(`Document at index ${index} has name`, function () {",
+							"        pm.expect(doc).to.have.property('name').that.is.a('string').and.to.not.be.empty;",
+							"    });",
+							"    pm.test(`Document at index ${index} has age`, function () {",
+							"        pm.expect(doc).to.have.property('age').that.is.a('number').and.to.be.below(40);",
+							"    });",
+							"    pm.test(`Document at index ${index} has email`, function () {",
+							"        pm.expect(doc).to.have.property('email').that.is.a('string').and.to.not.be.empty;",
+							"    });",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/{{CONTENT_TYPE}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": { \"age\": { \"$lt\": 40 } }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/find",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"find"
+					]
+				},
+				"description": "Using the `/find` endpoint, you can fetch multiple documents at once. Use the `filter` property in the body of the request to specify the criteria on which to filter. If you pass an empty object `{ }`, all the documents in the collection will be returned."
+			},
+			"response": []
+		},
+		{
+			"name": "Find Multiple Documents with Filter_Equal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the documents field",
+							"pm.test(\"Response contains documents\", function () {",
+							"    pm.expect(response).to.have.property(\"documents\");",
+							"});",
+							"",
+							"// Check if documents is an array",
+							"pm.test(\"documents is an array\", function () {",
+							"    pm.expect(response.documents).to.be.an('array');",
+							"});",
+							"",
+							"// Check if the array length of documents is 1",
+							"pm.test(\"documents array length is 1\", function () {",
+							"    pm.expect(response.documents.length).to.equal(1);",
+							"});",
+							"",
+							"// Check if the document has the required fields",
+							"const document = response.documents[0];",
+							"",
+							"pm.test(\"Document has _id\", function () {",
+							"    pm.expect(document).to.have.property('_id').that.is.a('string').and.to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"Document has name\", function () {",
+							"    pm.expect(document).to.have.property('name').that.is.a('string').and.to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"Document has age\", function () {",
+							"    pm.expect(document).to.have.property('age').that.is.a('number');",
+							"});",
+							"",
+							"pm.test(\"Document has email\", function () {",
+							"    pm.expect(document).to.have.property('email').that.is.a('string').and.to.not.be.empty;",
+							"});",
+							"",
+							"// Check the specific values of the document",
+							"pm.test(\"Document _id is correct\", function () {",
+							"    pm.expect(document._id).to.equal(\"6690f5c8e3c777a2ada1ff3c\");",
+							"});",
+							"",
+							"pm.test(\"Document name is correct\", function () {",
+							"    pm.expect(document.name).to.equal(\"John Sample\");",
+							"});",
+							"",
+							"pm.test(\"Document age is correct\", function () {",
+							"    pm.expect(document.age).to.equal(24);",
+							"});",
+							"",
+							"pm.test(\"Document email is correct\", function () {",
+							"    pm.expect(document.email).to.equal(\"john_sample@gameofthron.es\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/{{CONTENT_TYPE}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": { \"name\": { \"$eq\": \"John Sample\" } }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/find",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"find"
+					]
+				},
+				"description": "Using the `/find` endpoint, you can fetch multiple documents at once. Use the `filter` property in the body of the request to specify the criteria on which to filter. If you pass an empty object `{ }`, all the documents in the collection will be returned."
+			},
+			"response": []
+		},
+		{
+			"name": "Find Multiple Documents without filters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the documents field",
+							"pm.test(\"Response contains documents\", function () {",
+							"    pm.expect(response).to.have.property(\"documents\");",
+							"});",
+							"",
+							"// Check if documents is an array",
+							"pm.test(\"documents is an array\", function () {",
+							"    pm.expect(response.documents).to.be.an('array');",
+							"});",
+							"",
+							"// Check if the array length of documents is greater than 0",
+							"pm.test(\"documents array length is greater than 0\", function () {",
+							"    pm.expect(response.documents.length).to.be.greaterThan(0);",
+							"});",
+							"",
+							"// Loop through each document to ensure they have required fields",
+							"response.documents.forEach((document, index) => {",
+							"    pm.test(`Document ${index + 1} has _id`, function () {",
+							"        pm.expect(document).to.have.property('_id').that.is.a('string').and.to.not.be.empty;",
+							"    });",
+							"",
+							"    pm.test(`Document ${index + 1} has name`, function () {",
+							"        pm.expect(document).to.have.property('name').that.is.a('string').and.to.not.be.empty;",
+							"    });",
+							"",
+							"    pm.test(`Document ${index + 1} has age`, function () {",
+							"        pm.expect(document).to.have.property('age').that.is.a('number');",
+							"    });",
+							"",
+							"    pm.test(`Document ${index + 1} has email`, function () {",
+							"        pm.expect(document).to.have.property('email').that.is.a('string').and.to.not.be.empty;",
+							"    });",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/{{CONTENT_TYPE}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": {  }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/find",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"find"
+					]
+				},
+				"description": "Using the `/find` endpoint, you can fetch multiple documents at once. Use the `filter` property in the body of the request to specify the criteria on which to filter. If you pass an empty object `{ }`, all the documents in the collection will be returned."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Multiple Documents",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains matchedCount and modifiedCount fields",
+							"pm.test(\"Response contains matchedCount\", function () {",
+							"    pm.expect(response).to.have.property(\"matchedCount\").that.is.a(\"number\");",
+							"});",
+							"",
+							"pm.test(\"Response contains modifiedCount\", function () {",
+							"    pm.expect(response).to.have.property(\"modifiedCount\").that.is.a(\"number\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": { \"age\": { \"$lt\": 40 } },\n      \"update\": { \"$set\": { \"age\": 42 } }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/updateMany",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"updateMany"
+					]
+				},
+				"description": "Using `/updateMany`, you can update all the documents matching a specific `filter` specified in the body of the request. Use one of the [update operators](https://docs.mongodb.com/manual/reference/operator/update-field/) in the `update` field to update your documents."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Many Documents",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains the deletedCount property",
+							"pm.test(\"Response contains deletedCount property\", function () {",
+							"    pm.expect(response).to.have.property(\"deletedCount\");",
+							"});",
+							"",
+							"// Validate the deletedCount property",
+							"pm.test(\"Deleted count is a number\", function () {",
+							"    pm.expect(response.deletedCount).to.be.a(\"number\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"filter\": {\"age\": { \"$lte\": 42 } }\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/deleteMany",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"deleteMany"
+					]
+				},
+				"description": "You can use `/deleteMany` to delete multiple documents at once. Use the `filter` property to specify which documents to delete.  \n  \n**Warning**: Using `filter: { }` will delete all the documents in the collection. Use `/deleteMany` with care."
+			},
+			"response": []
+		},
+		{
+			"name": "Run Aggregation Pipeline",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Check if the response has the correct Content-Type header",
+							"pm.test(\"Content-Type is application/json\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\", \"application/json\");",
+							"});",
+							"",
+							"// Parse the JSON response",
+							"const response = pm.response.json();",
+							"",
+							"// Check if the response contains a document",
+							"pm.test(\"Response contains a document\", function () {",
+							"    pm.expect(response).to.have.property(\"documents\").that.is.an(\"array\").and.not.empty;",
+							"});",
+							"",
+							"// Validate the document structure",
+							"pm.test(\"Document has _id, name, age, and email\", function () {",
+							"    const doc = response.documents[0];",
+							"    if(doc){",
+							"        pm.expect(doc).to.have.property(\"_id\").that.is.a(\"string\");",
+							"        pm.expect(doc).to.have.property(\"name\").that.is.a(\"string\");",
+							"        pm.expect(doc).to.have.property(\"age\").that.is.a(\"number\");",
+							"        pm.expect(doc).to.have.property(\"email\").that.is.a(\"string\").and.include(\"@\");",
+							"    } else {",
+							"        pm.expect.fail(\"No document found in the response\");",
+							"    }",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/{{CONTENT_TYPE}}"
+					},
+					{
+						"key": "Access-Control-Request-Headers",
+						"value": "*"
+					},
+					{
+						"key": "api-key",
+						"value": "{{API_KEY}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/{{CONTENT_TYPE}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"dataSource\": \"{{DATA_SOURCE}}\",\n      \"database\": \"{{DATABASE}}\",\n      \"collection\": \"{{COLLECTION}}\",\n      \"pipeline\": [\n          {\n              \"$sort\": { \"age\": 1 }\n          },\n          {\n              \"$limit\": 1\n          }\n      ]\n  }"
+				},
+				"url": {
+					"raw": "{{URL_ENDPOINT}}/action/aggregate",
+					"host": [
+						"{{URL_ENDPOINT}}"
+					],
+					"path": [
+						"action",
+						"aggregate"
+					]
+				},
+				"description": "You can even run [aggregation pipelines](https://docs.mongodb.com/manual/core/aggregation-pipeline/) with the Data API. To do so, use the `/aggregate` endpoint and specify your pipeline in the `pipeline` field of the request body."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL_ENDPOINT",
+			"value": "https://eu-central-1.aws.data.mongodb-api.com/app/data-rhbwyni/endpoint/data/v1",
+			"type": "string"
+		},
+		{
+			"key": "API_KEY",
+			"value": "d9avxMRlfUNlY9FHXSNPDY0BJkWBZNLTrGPERO5szETOCwjHXxAEkEYPu1sMKs7N"
+		},
+		{
+			"key": "DATA_SOURCE",
+			"value": "Cluster0",
+			"type": "string"
+		},
+		{
+			"key": "DATABASE",
+			"value": "sample_mflix",
+			"type": "string"
+		},
+		{
+			"key": "COLLECTION",
+			"value": "users",
+			"type": "string"
+		},
+		{
+			"key": "CONTENT_TYPE",
+			"value": "json",
+			"type": "string"
+		}
+	]
+}
